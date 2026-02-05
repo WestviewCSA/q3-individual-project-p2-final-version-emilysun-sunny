@@ -1,3 +1,23 @@
 Questions:
 
 Write as many questions as you can based on the project specs.
+
+1. How will we use code to help Wolverine? (O)
+2. Could we use arrays or ArrayList to generate the maze? (C)
+3. What is the difference between the open areas (walkable) and open walkway? (O)
+4. Could we use 2D arrays to generate multiple mazes? (C)
+5. How will we use queues and stacks to find a valid path? (O)
+6. How can we find an optimal path? (O)
+7. What does enqueue and dequeue mean? (O)
+8. How will we make sure the path does not loop or backtrack? (O)
+9. Do we need to try both the queue and stack approaches? (C)
+10. Are both the text-map format and the coordinate-based format inputted into the code? (C)
+11. It seems that the coordinate-based format will be easier to use, will that be the one that we will use in the code? (C)
+12. Will the output be a 2D array? (C)
+13. Will the run time benchmark be flexible? (C)
+14. When is the assignment due? (C)
+15. Is a switch basically a method? (C)
+16. What is a command line? (O)
+17. Will checking for errors such as illegal characters, incomplete maps, etc. count in the run time? (C)
+
+
