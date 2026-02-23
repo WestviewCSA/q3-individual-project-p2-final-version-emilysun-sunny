@@ -65,7 +65,7 @@ public class Runner {
 				for (int j = 0; j < map[0].length; i++) {
 					map[i][j] = ".";
 				}
-			}
+			} 
 			
 			while (myScanner.hasNext()) {
 				String element = myScanner.next();
