@@ -1,0 +1,35 @@
+7 9 3
+|@@@@@...
+..@@@....
+.......@@
+...@@@...
+..@@.....
+.@W......
+.@.....@@ //first map end
+.@@......
+@W...@@..
+.@.@@@@..
+...@|.@..
+.@@......
+...@@@@..
+......... //second map end
+.@@...@..
+@$...@@..
+.@.@@.@..
+...@..@.@
+.@@.....@
+.....@@..
+...@@@W.. //third map end
+
+
+
+
+
+
+
+
+
+
+//generate a medium level map
+//slightly bigger
+//try 2-rooms. aka there should be an open walkway for this one
