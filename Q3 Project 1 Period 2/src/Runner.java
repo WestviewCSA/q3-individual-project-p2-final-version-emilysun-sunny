@@ -25,9 +25,9 @@ public class Runner {
 		try {
 			Scanner myScanner = new Scanner(mapBased);
 			
-			rows = Integer.parseInt(myScanner.next());
-			cols = Integer.parseInt(myScanner.next());
-			numMazes = Integer.parseInt(myScanner.next());
+			rows = Integer.parseInt(myScanner.next()); //assign # of rows to first number in file
+			cols = Integer.parseInt(myScanner.next()); //assign # of cols to second number in file
+			numMazes = Integer.parseInt(myScanner.next()); //assign # of mazes to third number in file
 			//create 2D array to put elements of the map
 			map = new String[rows*numMazes][cols];
 			
@@ -54,27 +54,31 @@ public class Runner {
 		try {
 			Scanner myScanner = new Scanner(coorBased);
 			
-			rows = Integer.parseInt(myScanner.next());
-			cols = Integer.parseInt(myScanner.next());
-			numMazes = Integer.parseInt(myScanner.next());
+			rows = Integer.parseInt(myScanner.next()); //assign # of rows to first number in file
+			cols = Integer.parseInt(myScanner.next()); //assign # of cols to second number in file
+			numMazes = Integer.parseInt(myScanner.next()); //assign # of mazes to third number in file
 			//create 2D array to put elements of the map
 			map = new String[rows*numMazes][cols];
 			
-			//add periods for the first digits
+			//loop through the file to add elements that are not periods
+			while (myScanner.hasNext()) {
+				//assign element to first element of the row in the file
+				String element = myScanner.next();
+				//get the row, col, and maze # for the element
+				int row = Integer.parseInt(myScanner.next()); 
+				int col = Integer.parseInt(myScanner.next()); 
+				int mazeNum = Integer.parseInt(myScanner.next()); 
+				map[row+mazeNum*rows][col] = element; 
+			}
+			
+			//set periods for the rest of the digits
 			for (int i = 0; i < map.length; i++) {
-				for (int j = 0; j < map[0].length; i++) {
-					map[i][j] = ".";
+				for (int j = 0; j < map[0].length; j++) {
+					if (map[i][j] == null) { //if there is not already something there
+						map[i][j] = ".";
+					}
 				}
 			} 
-			
-			while (myScanner.hasNext()) {
-				String element = myScanner.next();
-				int row = Integer.parseInt(myScanner.next());
-				int col = Integer.parseInt(myScanner.next());
-				int mazeNum = Integer.parseInt(myScanner.next());
-				
-				
-			}
 			
 			System.out.println(Arrays.deepToString(map));
 			myScanner.close();
