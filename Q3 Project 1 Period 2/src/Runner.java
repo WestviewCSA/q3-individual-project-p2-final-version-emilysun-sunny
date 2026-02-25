@@ -12,8 +12,8 @@ public class Runner {
 	private static int numMazes;
 	
 	public static void main(String[] args) {
-		readMapBasedFile("hardMap1");
-		readCoorBasedFile("easyMap1c");
+		readMapBasedFile("easyMap2");
+		//readCoorBasedFile("easyMap1c");
 
 	}
 	
@@ -34,10 +34,22 @@ public class Runner {
 			//add elements of the file to the 2D array
 			for (int i = 0; i < map.length; i++) {
 				String oneRow = myScanner.next();
+				//check for incomplete map (not enough characters)
+				if (oneRow.length() != cols) {
+					System.out.println("IncompleteMapException");
+				}
 				for (int j = 0; j < map[0].length; j++) {
-					map[i][j] = oneRow.substring(j, j+1);	
+					//check for illegal characters
+					String element = oneRow.substring(j, j+1);
+					if (!element.equals(".") && !element.equals("W") && !element.equals("$") && !element.equals("|") && !element.equals("@")) {
+						System.out.println("IllegalMapCharacterException");
+					}					
+					else {
+						map[i][j] = element;
+					}
 				}
 			}
+			
 			System.out.println(Arrays.deepToString(map));
 			myScanner.close();
 		} 
