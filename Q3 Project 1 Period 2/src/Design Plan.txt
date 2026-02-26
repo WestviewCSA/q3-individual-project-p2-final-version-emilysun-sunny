@@ -1,0 +1,16 @@
+Week 1 (2/26-2/27):
+- Be able to read data from map files
+- Be able to store data from map files
+- Make sure code can check for errors while reading the text-based and coor-based files
+
+Week 2 (3/2-3/6):
+- Work on Queue-based approach to find path
+- Work on Stack-based approach to find path
+
+Week 3 (3/9-3/13):
+- Implement switches
+
+Week 4 (3/16-3/20):
+- Make sure the code finds the most optimal path
+- Ensure that time taken meets requirement
+- Debug
