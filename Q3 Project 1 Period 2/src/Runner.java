@@ -2,7 +2,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
+import java.util.HashMap;
 
 public class Runner {
 	
@@ -21,13 +24,14 @@ public class Runner {
 		} catch(IncorrectMapFormatException e) {
 			System.out.println(e.getMessage());
 		}
-		try {
-			readCoorBasedFile("easyMap1c");
-		} catch(IllegalMapCharacterException e) {
-			System.out.println(e.getMessage());
-		} catch(IncorrectMapFormatException e) {
-			System.out.println(e.getMessage());
-		}
+//		try {
+//			readCoorBasedFile("easyMap1c");
+//		} catch(IllegalMapCharacterException e) {
+//			System.out.println(e.getMessage());
+//		} catch(IncorrectMapFormatException e) {
+//			System.out.println(e.getMessage());
+//		}
+		queueBased();
 
 	}
 	
@@ -128,6 +132,39 @@ public class Runner {
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void queueBased() {
+		Queue<HashMap<String, ArrayList<Integer>>> queue = new LinkedList<>();
+		
+		ArrayList<Integer> startCoor = new ArrayList<Integer>();
+		
+		//find the start location and set xStart and yStart
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[0].length; j++) {
+				if (map[i][j].equals("W")) {
+					startCoor.add(i);
+					startCoor.add(j);
+					break;
+				}
+			}
+		}
+		//create HashMap for starting element and pos
+		HashMap<String, ArrayList<Integer>> start = new HashMap<String, ArrayList<Integer>>();
+		start.put("W", startCoor);
+		
+		//add the starting hashmap to the queue
+		queue.add(start);
+		
+		System.out.println(queue.element().get("W"));
+		
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[0].length; j++) {
+				queue.element().get("W");
+			}
+		}
+		
+		
 	}
 
 }
