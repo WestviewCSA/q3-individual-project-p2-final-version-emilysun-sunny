@@ -73,7 +73,7 @@ public class Runner {
 				}
 			}
 			
-			System.out.println(Arrays.deepToString(map));
+			System.out.println("Map: " + Arrays.deepToString(map));
 			myScanner.close();
 		} 
 		catch (FileNotFoundException e) {
@@ -126,7 +126,7 @@ public class Runner {
 					}
 				}
 			} 
-			System.out.println(Arrays.deepToString(map));
+			System.out.println("Map: " + Arrays.deepToString(map));
 			myScanner.close();
 		} 
 		catch (FileNotFoundException e) {
@@ -140,7 +140,7 @@ public class Runner {
 		//create ArrayList for starting coordinates
 		ArrayList<Integer> startCoor = new ArrayList<Integer>();
 		
-		//create HashMap to keep track of visited coordinates for the purpose of tracing back
+		//create HashMap to keep track of child-parent coordinates for the purpose of tracing back
 		HashMap<ArrayList<Integer>, ArrayList<Integer>> visited = new HashMap<ArrayList<Integer>, ArrayList<Integer>>();
 		
 		//find the start location and add coordinates to ArrayList
@@ -174,11 +174,14 @@ public class Runner {
 		//(-1, 0)
 		offsets.add(0);
 		offsets.add(-1);
-		//start the enqueue dequeue process
+		
+		//queueing process
+		
+		//while the coin coordinates have not been found...
 		while(coinCoor.size() == 0) {
 			//1. dequeue
 			ArrayList<Integer> dequeued = queue.remove();
-			System.out.println(dequeued);
+			System.out.println("Dequeued: " + dequeued);
 			int xCoor = dequeued.get(0);
 			int yCoor = dequeued.get(1);
 			
@@ -205,81 +208,35 @@ public class Runner {
 					if (!visited.containsKey(currCoor) && map[xOffset][yOffset].equals(".")) {
 						//create ArrayList for coordinates
 						queue.add(currCoor);
+						//add the current coordinates into visited as the child of the coordinates that it branched off from (the parent)--this is for tracing back later
 						visited.put(currCoor, dequeued);
 						
 					}
 				}
 			}
-			
-			
-//			if (xCoor-1 >= 0 && !visited.containsKey((xCoor-1) + " " + yCoor)) {
-//				//check for walkable space
-//				if (map[xCoor-1][yCoor].equals(".")) {
-//					//create ArrayList for coordinates
-//					ArrayList<Integer> northCoor = new ArrayList<Integer>();
-//					northCoor.add(xCoor-1);
-//					northCoor.add(yCoor);
-//					queue.add(northCoor);
-//				}
-//				//check for coin
-//				if (map[xCoor-1][yCoor].equals("$")) {
-//					coinCoor.add(xCoor-1);
-//					coinCoor.add(yCoor);
-//				}
-//			}
-//			//South
-//			if (xCoor+1 < rows && !visited.containsKey((xCoor+1) + " " + yCoor)) {
-//				//check for walkable space
-//				if (map[xCoor+1][yCoor].equals(".")) {
-//					//create ArrayList for coordinates
-//					ArrayList<Integer> southCoor = new ArrayList<Integer>();
-//					southCoor.add(xCoor+1);
-//					southCoor.add(yCoor);
-//					queue.add(southCoor);
-//				}
-//				//check for coin
-//				if (map[xCoor+1][yCoor].equals("$")) {
-//					coinCoor.add(xCoor+1);
-//					coinCoor.add(yCoor);
-//				}
-//			}
-//			//East
-//			if (yCoor+1 < cols && !visited.containsKey(xCoor + " " + (yCoor+1))) {
-//				//check for walkable space
-//				if (map[xCoor][yCoor+1].equals(".")) {
-//					//create ArrayList for coordinates
-//					ArrayList<Integer> eastCoor = new ArrayList<Integer>();
-//					eastCoor.add(xCoor);
-//					eastCoor.add(yCoor+1);
-//					queue.add(eastCoor);
-//				}
-//				//check for coin
-//				if (map[xCoor][yCoor+1].equals("$")) {
-//					coinCoor.add(xCoor);
-//					coinCoor.add(yCoor+1);
-//				}
-//			}
-//			//West
-//			if (yCoor-1 >= 0 && !visited.containsKey(xCoor + " " + (yCoor-1))) {
-//				//check for walkable space
-//				if (map[xCoor][yCoor-1].equals(".")) {
-//					//create ArrayList for coordinates
-//					ArrayList<Integer> westCoor = new ArrayList<Integer>();
-//					westCoor.add(xCoor);
-//					westCoor.add(yCoor-1);
-//					queue.add(westCoor);
-//				}
-//				//check for coin
-//				if (map[xCoor][yCoor-1].equals("$")) {
-//					coinCoor.add(xCoor);
-//					coinCoor.add(yCoor-1);
-//				}
-//			}
-			System.out.println(queue);
+			System.out.println("Queue: " + queue);
 			
 			
 		}
-		System.out.println(visited);
+		System.out.println("Visited: " + visited);
+		
+		//traceback
+		
+		//create ArrayList to store the final path--this will be the path with "+" in the output
+		ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+		
+		//find the coor that is the parent to the coor of the coin 
+		ArrayList<Integer> currTraceback = visited.get(coinCoor);
+		//while the code hasn't traced back to the starting pos...
+		while (currTraceback != startCoor) {
+			//add the coor to the result
+			result.add(currTraceback);
+			//update the current coor to be the parent coor
+			currTraceback = visited.get(currTraceback);
+		}
+		System.out.println("Result: " + result);
+		
+		
 		
 	}
 
