@@ -16,7 +16,7 @@ public class Runner {
 	
 	public static void main(String[] args) {
 		try {
-			readMapBasedFile("easyMap2");
+			readMapBasedFile("easyMap1");
 		} catch(IncompleteMapException e) {
 			System.out.println(e.getMessage());
 		} catch(IllegalMapCharacterException e) {
@@ -57,7 +57,7 @@ public class Runner {
 			for (int i = 0; i < map.length; i++) {
 				String oneRow = myScanner.next();
 				//check for incomplete map (not enough characters)
-				if (oneRow.length() != cols) {
+				if (oneRow.length() < cols) {
 					throw new IncompleteMapException("IncompleteMapException - missing characters/rows in map");
 				}
 				
@@ -135,11 +135,15 @@ public class Runner {
 	}
 	
 	public static void queueBased() {
-		Queue<HashMap<String, ArrayList<Integer>>> queue = new LinkedList<>();
+		Queue<ArrayList<Integer>> queue = new LinkedList<>();
 		
+		//create ArrayList for starting coordinates
 		ArrayList<Integer> startCoor = new ArrayList<Integer>();
 		
-		//find the start location and set xStart and yStart
+		//create HashMap to keep track of visited coordinates
+		HashMap<String, Boolean> visited = new HashMap<String, Boolean>();
+		
+		//find the start location and add coordinates to ArrayList
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[0].length; j++) {
 				if (map[i][j].equals("W")) {
@@ -149,21 +153,91 @@ public class Runner {
 				}
 			}
 		}
-		//create HashMap for starting element and pos
-		HashMap<String, ArrayList<Integer>> start = new HashMap<String, ArrayList<Integer>>();
-		start.put("W", startCoor);
 		
-		//add the starting hashmap to the queue
-		queue.add(start);
+		//create ArrayList for coin location coordinates
+		ArrayList<Integer> coinCoor = new ArrayList<Integer>();
 		
-		System.out.println(queue.element().get("W"));
+		//add the starting ArrayList to the queue
+		queue.add(startCoor);
 		
-		for (int i = 0; i < map.length; i++) {
-			for (int j = 0; j < map[0].length; j++) {
-				queue.element().get("W");
+		
+		//start the enqueue dequeue process
+		while(coinCoor.size() == 0) {
+			//1. dequeue
+			ArrayList<Integer> dequeued = queue.remove();
+			System.out.println(dequeued);
+			int xCoor = dequeued.get(0);
+			int yCoor = dequeued.get(1);
+			visited.put(dequeued.get(0) + " " + dequeued.get(1), true);
+			//2. enqueue all walkable tiles "." North, South, East, and West of the location just dequeued
+			//ensure that xCoor and yCoor are not outside the map and that the coordinate has not been visited before
+			//North
+			if (xCoor-1 >= 0 && !visited.containsKey((xCoor-1) + " " + yCoor)) {
+				//check for walkable space
+				if (map[xCoor-1][yCoor].equals(".")) {
+					//create ArrayList for coordinates
+					ArrayList<Integer> northCoor = new ArrayList<Integer>();
+					northCoor.add(xCoor-1);
+					northCoor.add(yCoor);
+					queue.add(northCoor);
+				}
+				//check for coin
+				if (map[xCoor-1][yCoor].equals("$")) {
+					coinCoor.add(xCoor-1);
+					coinCoor.add(yCoor);
+				}
 			}
+			//South
+			if (xCoor+1 < rows && !visited.containsKey((xCoor+1) + " " + yCoor)) {
+				//check for walkable space
+				if (map[xCoor+1][yCoor].equals(".")) {
+					//create ArrayList for coordinates
+					ArrayList<Integer> southCoor = new ArrayList<Integer>();
+					southCoor.add(xCoor+1);
+					southCoor.add(yCoor);
+					queue.add(southCoor);
+				}
+				//check for coin
+				if (map[xCoor+1][yCoor].equals("$")) {
+					coinCoor.add(xCoor+1);
+					coinCoor.add(yCoor);
+				}
+			}
+			//East
+			if (yCoor+1 < cols && !visited.containsKey(xCoor + " " + (yCoor+1))) {
+				//check for walkable space
+				if (map[xCoor][yCoor+1].equals(".")) {
+					//create ArrayList for coordinates
+					ArrayList<Integer> eastCoor = new ArrayList<Integer>();
+					eastCoor.add(xCoor);
+					eastCoor.add(yCoor+1);
+					queue.add(eastCoor);
+				}
+				//check for coin
+				if (map[xCoor][yCoor+1].equals("$")) {
+					coinCoor.add(xCoor);
+					coinCoor.add(yCoor+1);
+				}
+			}
+			//West
+			if (yCoor-1 >= 0 && !visited.containsKey(xCoor + " " + (yCoor-1))) {
+				//check for walkable space
+				if (map[xCoor][yCoor-1].equals(".")) {
+					//create ArrayList for coordinates
+					ArrayList<Integer> westCoor = new ArrayList<Integer>();
+					westCoor.add(xCoor);
+					westCoor.add(yCoor-1);
+					queue.add(westCoor);
+				}
+				//check for coin
+				if (map[xCoor][yCoor-1].equals("$")) {
+					coinCoor.add(xCoor);
+					coinCoor.add(yCoor-1);
+				}
+			}
+			System.out.println(queue);	
 		}
-		
+		System.out.println(visited);
 		
 	}
 
