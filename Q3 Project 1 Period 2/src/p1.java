@@ -1,7 +1,9 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
@@ -16,7 +18,7 @@ public class p1 {
 	
 	public static void main(String[] args) {
 		try {
-			readMapBasedFile("mediumMap1");
+			readMapBasedFile("easyMap2");
 			stackBased();
 		} catch(IncompleteMapException e) {
 			System.out.println(e.getMessage());
@@ -204,30 +206,27 @@ public class p1 {
 					int yOffset = yCoor + offsets.get(i+1);
 					//check if coordinate is in bounds
 					if (xOffset >= 0 && xOffset < rows && yOffset >= 0 && yOffset < cols) {
-						//check for coin
+						//create ArrayList for coordinates
 						ArrayList<Integer> currCoor = new ArrayList<Integer>();
 						currCoor.add(xOffset);
 						currCoor.add(yOffset);
 						currCoor.add(num);
+						//check for coin
 						if (map[xOffset+num*rows][yOffset].equals("$")) {
-							System.out.println("Coin found");
 							coinCoor.add(xOffset);
 							coinCoor.add(yOffset);
 							coinCoor.add(num);
+							System.out.println("Coin Coor: " + coinCoor);
 							visited.put(currCoor, dequeued);
 							break;
 						}
 						//check for walkable space and if the space was visited before
 						if (!visited.containsKey(currCoor) && (map[xOffset+num*rows][yOffset].equals(".") || map[xOffset][yOffset].equals("|"))) {
-							//create ArrayList for coordinates
+							//current coor is valid--queue it
 							queue.add(currCoor);
 							//save coor of open walkway
 							if (map[xOffset+num*rows][yOffset].equals("|")) {
-								ArrayList<Integer> oneOpenWalkway = new ArrayList<Integer>();
-								oneOpenWalkway.add(xOffset);
-								oneOpenWalkway.add(yOffset);
-								oneOpenWalkway.add(num);
-								openWalkway.add(oneOpenWalkway);
+								openWalkway.add(currCoor);
 								System.out.println("Open Walkway: " + openWalkway);
 							}
 							//add the current coordinates into visited as the child of the coordinates that it branched off from (the parent)--this is for tracing back later
@@ -283,7 +282,7 @@ public class p1 {
 		System.out.println("Result: " + result);
 	}
 	public static void stackBased() {
-		//Deque<String> stack = new ArrayDeque<>();
+		Deque<ArrayList<Integer>> stack = new ArrayDeque<>();
 		//create ArrayList for starting coordinates
 		ArrayList<ArrayList<Integer>> startCoor = new ArrayList<ArrayList<Integer>>();
 				
@@ -308,11 +307,102 @@ public class p1 {
 				}
 			}
 		}
-		System.out.println(startCoor);
+		//create ArrayList of offsets for North, South, East, West
+		ArrayList<Integer> offsets = new ArrayList<Integer>();
+		//(0, 1)
+		offsets.add(-1);
+		offsets.add(0);
+		//(0, -1)
+		offsets.add(1);
+		offsets.add(0);
+		//(1, 0)
+		offsets.add(0);
+		offsets.add(1);
+		//(-1, 0)
+		offsets.add(0);
+		offsets.add(-1);
 		
+		stack.push(startCoor.get(0));
+		
+		while (coinCoor.size() != 0 || stack.size() > 0) {
+			//1. pop
+			ArrayList<Integer> popped = stack.pop();
+			System.out.println("Popped: " + popped);
+			int xCoor = popped.get(0);
+			int yCoor = popped.get(1);
+			int zCoor = popped.get(2); //maze num
+			
+			//2. push all walkable tiles "." North, South, East, and West of the location just popped
+			//loop through offsets
+			for (int i = 0; i < 8; i+= 2) {
+				int xOffset = xCoor + offsets.get(i);
+				int yOffset = yCoor + offsets.get(i+1);
+				//check if coordinate is in bounds
+				if (xOffset >= 0 && xOffset < rows && yOffset >= 0 && yOffset < cols) {
+					//create ArrayList for coordinates
+					ArrayList<Integer> currCoor = new ArrayList<Integer>();
+					currCoor.add(xOffset);
+					currCoor.add(yOffset);
+					currCoor.add(zCoor);
+					//check for coin
+					if (map[xOffset+zCoor*rows][yOffset].equals("$")) {
+						coinCoor.add(xOffset);
+						coinCoor.add(yOffset);
+						coinCoor.add(zCoor);
+						System.out.println("Coin Coor: " + coinCoor);
+						visited.put(currCoor, popped);
+						break;
+					}
+					//check for walkable space and if the space was visited before
+					if (!visited.containsKey(currCoor) && (map[xOffset+zCoor*rows][yOffset].equals(".") || map[xOffset][yOffset].equals("|"))) {
+						//current coor is valid--push it
+						stack.push(currCoor);
+						//if currCoor is an open walkway, push the starting coor of the next maze into the stack 
+						if (map[xOffset+zCoor*rows][yOffset].equals("|")) {
+							//update the maze num
+							stack.push(startCoor.get(zCoor+1));
+							visited.put(startCoor.get(zCoor+1), currCoor);
+						}
+						//add the current coordinates into visited as the child of the coordinates that it branched off from (the parent)--this is for tracing back later
+						visited.put(currCoor, popped);						
+					}
+				}
+				
+			}
+			if (coinCoor.size() != 0) {
+				break;
+			}
+			if (stack.size() == 0) {
+				break;
+			}
+			System.out.println("Stack: " + stack);
+		}
+		System.out.println("Visited: " + visited);
+		
+		//TRACEBACK
+		
+		//create ArrayList to store the final path--this will be the path with "+" in the output
+		ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+				
+		//find the coor that is the parent to the coor of the coin 
+		ArrayList<Integer> currTraceback = visited.get(coinCoor);
+		//while the code hasn't traced back to the starting pos...
+		while (currTraceback != startCoor.get(0)) {
+			//add the coor to the result
+			result.add(currTraceback);
+			//update the current coor to be the parent coor
+			if (visited.containsKey(currTraceback)) {
+				currTraceback = visited.get(currTraceback);
+			}
+			//if the curr coor does not have a parent, coin is unreachable 
+			else {
+				System.out.println("The Wolverine Store is closed.");
+				break;
+			}
+		}
+		System.out.println("Result: " + result);
 		
 	}
 	
 
 }
-//changed name of Runner, factored in when the coin is unreachable (print "The Wolverine Store is closed.")
