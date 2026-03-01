@@ -7,7 +7,7 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.util.HashMap;
 
-public class Runner {
+public class p1 {
 	
 	private static String[][] map;
 	private static int rows;
@@ -17,7 +17,7 @@ public class Runner {
 	public static void main(String[] args) {
 		try {
 			readMapBasedFile("mediumMap1");
-			queueBased();
+			stackBased();
 		} catch(IncompleteMapException e) {
 			System.out.println(e.getMessage());
 		} catch(IllegalMapCharacterException e) {
@@ -58,7 +58,7 @@ public class Runner {
 				String oneRow = myScanner.next();
 				//check for incomplete map (not enough characters)
 				if (oneRow.length() < cols) {
-					throw new IncompleteMapException("IncompleteMapException - missing characters/rows in map" + oneRow.length());
+					throw new IncompleteMapException("IncompleteMapException - missing characters/rows in map");
 				}
 				for (int j = 0; j < map[0].length; j++) {
 					//check for illegal characters
@@ -163,31 +163,29 @@ public class Runner {
 		//create an ArrayList to save coordinates of the open walkways
 		ArrayList<ArrayList<Integer>> openWalkway = new ArrayList<ArrayList<Integer>>();
 		
+		//find all start locations and add coordinates to ArrayList
+		int k = 0; //maze number
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[0].length; j++) {
+				if (map[i][j].equals("W")) {
+					ArrayList<Integer> oneStartCoor = new ArrayList<Integer>();
+					oneStartCoor.add(i-k*rows); //x coor
+					oneStartCoor.add(j); //y coor
+					oneStartCoor.add(k); //maze coor
+					k++; //update maze number to the next maze
+					startCoor.add(oneStartCoor);
+				}
+			}
+		}
+		
 		//QUEUEING
 		
 		//loop through each maze
 		for (int num = 0; num < numMazes; num++) {
 			System.out.println("Maze Number: " + num);
-			//find the start location and add coordinates to ArrayList
-			for (int i = 0; i < rows; i++) {
-				for (int j = 0; j < cols; j++) {
-					if (map[i+num*rows][j].equals("W")) {
-						ArrayList<Integer> oneStartCoor = new ArrayList<Integer>();
-						oneStartCoor.add(i); //x coor
-						oneStartCoor.add(j); //y coor
-						oneStartCoor.add(num); //maze coor
-						startCoor.add(oneStartCoor);
-						break;
-					}
-				}
-				//once the starting pos is found break
-				if (startCoor.size() > num) {
-					break;
-				}
-			}
 			//add the starting ArrayList to the queue
 			queue.add(startCoor.get(num));
-			System.out.println("Start Coor: " + startCoor);
+			System.out.println("Start Coor: " + startCoor.get(num));
 			
 			//while the coin coordinates have not been found...
 			while(coinCoor.size() == 0 || queue.size() > 0) {
@@ -273,11 +271,48 @@ public class Runner {
 			//add the coor to the result
 			result.add(currTraceback);
 			//update the current coor to be the parent coor
-			currTraceback = visited.get(currTraceback);
+			if (visited.containsKey(currTraceback)) {
+				currTraceback = visited.get(currTraceback);
+			}
+			//if the curr coor does not have a parent, coin is unreachable 
+			else {
+				System.out.println("The Wolverine Store is closed.");
+				break;
+			}
 		}
 		System.out.println("Result: " + result);
+	}
+	public static void stackBased() {
+		//Deque<String> stack = new ArrayDeque<>();
+		//create ArrayList for starting coordinates
+		ArrayList<ArrayList<Integer>> startCoor = new ArrayList<ArrayList<Integer>>();
+				
+		//create HashMap to keep track of child-parent coordinates for the purpose of tracing back
+		HashMap<ArrayList<Integer>, ArrayList<Integer>> visited = new HashMap<ArrayList<Integer>, ArrayList<Integer>>();
+				
+		//create ArrayList for coin location coordinates
+		ArrayList<Integer> coinCoor = new ArrayList<Integer>();
+		
+		
+		//find all start location and add coordinates to ArrayList
+		int k = 0; //maze number--a third dimension
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[0].length; j++) {
+				if (map[i][j].equals("W")) {
+					ArrayList<Integer> oneStartCoor = new ArrayList<Integer>();
+					oneStartCoor.add(i-k*rows); //x coor
+					oneStartCoor.add(j); //y coor
+					oneStartCoor.add(k); //maze coor
+					k++; //update maze number to the next maze
+					startCoor.add(oneStartCoor);
+				}
+			}
+		}
+		System.out.println(startCoor);
 		
 		
 	}
+	
 
 }
+//changed name of Runner, factored in when the coin is unreachable (print "The Wolverine Store is closed.")
