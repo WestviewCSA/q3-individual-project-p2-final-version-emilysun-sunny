@@ -466,34 +466,32 @@ public class p1 {
 							//check the previous path length to get the the current Coor and compare it to the present path length
 							//use the same logic as tracing back to the start coor to find the resultant path
 							int lengthPrevious = 0;
+							System.out.println("Current coordinate: " + currCoor);
 							ArrayList<Integer> prevTraceback = visited.get(currCoor);
+							System.out.println("Previous parent: " + visited.get(currCoor));
 							while (prevTraceback != startCoor.get(0)) {
 								lengthPrevious+=1;
+								System.out.println(prevTraceback);
 								if (visited.containsKey(prevTraceback)) {
 									prevTraceback = visited.get(prevTraceback);
-								}
-								else {
-									break;
 								}
 							}
 							int lengthCurr = 1;
 							ArrayList<Integer> currTraceback = visited.get(popped); //find the parent of the current in visited and traceback
+							System.out.println("Current parent: " + popped);
 							while (currTraceback != startCoor.get(0)) {
 								lengthCurr+=1;
+								System.out.println(currTraceback);
 								if (visited.containsKey(currTraceback)) {
 									currTraceback = visited.get(currTraceback);
 								}
-								else {
-									break;
-								}
 							}
+							System.out.println("Previous Length: " + lengthPrevious);
+							System.out.println("Current Length: " + lengthCurr);
 							if (lengthCurr < lengthPrevious) {
 								//replace the previous parent of the current Coordinate with the present parent
+								System.out.println("Replaced");
 								visited.replace(currCoor, popped);
-							}
-							else {
-								//add the current coordinates into visited as the child of the coordinates that it branched off from (the parent)--this is for tracing back later
-								visited.put(currCoor, popped);	
 							}
 						}
 						else {
@@ -504,6 +502,8 @@ public class p1 {
 								optimalStack.push(startCoor.get(zCoor+1));
 								visited.put(startCoor.get(zCoor+1), currCoor);
 							}
+							//add the current coordinates into visited as the child of the coordinates that it branched off from (the parent)--this is for tracing back later
+							visited.put(currCoor, popped);
 						}
 					}
 				}
