@@ -19,8 +19,8 @@ public class p1 {
 	
 	public static void main(String[] args) {
 		try {
-			readMapBasedFile("mediumMap1");
-			optimal();
+			readMapBasedFile("easyMap2");
+			stackBased();
 		} catch(IncompleteMapException e) {
 			System.out.println(e.getMessage());
 		} catch(IllegalMapCharacterException e) {
@@ -180,6 +180,7 @@ public class p1 {
 				}
 			}
 		}
+		System.out.println(startCoor);
 		
 		//QUEUEING
 		
@@ -219,11 +220,12 @@ public class p1 {
 						break;
 					}
 					//check for walkable space and if the space was visited before
-					if (!visited.containsKey(currCoor) && (map[xOffset+zCoor*rows][yOffset].equals(".") || map[xOffset][yOffset].equals("|"))) {
+					if (!visited.containsKey(currCoor) && (map[xOffset+zCoor*rows][yOffset].equals(".") || map[xOffset+zCoor*rows][yOffset].equals("|"))) {
 						//current coor is valid--queue it
 						queue.add(currCoor);
 						//if currCoor is an open walkway, queue the starting coor of the next maze into the stack 
 						if (map[xOffset+zCoor*rows][yOffset].equals("|")) {
+							System.out.println("Entered" + currCoor);
 							queue.add(startCoor.get(zCoor+1));
 							visited.put(startCoor.get(zCoor+1), currCoor);
 						}
@@ -245,24 +247,7 @@ public class p1 {
 		System.out.println("Visited: " + visited);
 		
 		//TRACEBACK
-		
-		//find the coor that is the parent to the coor of the coin 
-		ArrayList<Integer> currTraceback = visited.get(coinCoor);
-		//while the code hasn't traced back to the starting pos...
-		while (currTraceback != startCoor.get(0)) {
-			//add the coor to the result
-			result.add(currTraceback);
-			//update the current coor to be the parent coor
-			if (visited.containsKey(currTraceback)) {
-				currTraceback = visited.get(currTraceback);
-			}
-			//if the curr coor does not have a parent, coin is unreachable 
-			else {
-				System.out.println("The Wolverine Store is closed.");
-				break;
-			}
-		}
-		System.out.println("Result: " + result);
+		traceback(startCoor, coinCoor, visited);
 	}
 	public static void stackBased() {
 		Deque<ArrayList<Integer>> stack = new ArrayDeque<>();
@@ -339,7 +324,7 @@ public class p1 {
 						break;
 					}
 					//check for walkable space and if the space was visited before
-					if (!visited.containsKey(currCoor) && (map[xOffset+zCoor*rows][yOffset].equals(".") || map[xOffset][yOffset].equals("|"))) {
+					if (!visited.containsKey(currCoor) && (map[xOffset+zCoor*rows][yOffset].equals(".") || map[xOffset+zCoor*rows][yOffset].equals("|"))) {
 						//current coor is valid--push it
 						stack.push(currCoor);
 						//if currCoor is an open walkway, push the starting coor of the next maze into the stack 
@@ -364,52 +349,22 @@ public class p1 {
 		System.out.println("Visited: " + visited);
 		
 		//TRACEBACK
-				
-		//find the coor that is the parent to the coor of the coin 
-		ArrayList<Integer> currTraceback = visited.get(coinCoor);
-		//while the code hasn't traced back to the starting pos...
-		while (currTraceback != startCoor.get(0)) {
-			//add the coor to the result
-			result.add(currTraceback);
-			//update the current coor to be the parent coor
-			if (visited.containsKey(currTraceback)) {
-				currTraceback = visited.get(currTraceback);
-			}
-			//if the curr coor does not have a parent, coin is unreachable 
-			else {
-				System.out.println("The Wolverine Store is closed.");
-				break;
-			}
-		}
-		System.out.println("Result: " + result);
+		traceback(startCoor, coinCoor, visited);
 		
 	}
 	
 	public static void optimal() {
-		Deque<ArrayList<Integer>> optimalStack = new ArrayDeque<>();
+		Queue<ArrayList<Integer>> optimalQueue = new LinkedList<>();
+		
 		//create ArrayList for starting coordinates
 		ArrayList<ArrayList<Integer>> startCoor = new ArrayList<ArrayList<Integer>>();
-				
+		
 		//create HashMap to keep track of child-parent coordinates for the purpose of tracing back
 		HashMap<ArrayList<Integer>, ArrayList<Integer>> visited = new HashMap<ArrayList<Integer>, ArrayList<Integer>>();
-				
+		
 		//create ArrayList for coin location coordinates
 		ArrayList<Integer> coinCoor = new ArrayList<Integer>();
 		
-		//find all start location and add coordinates to ArrayList
-		int k = 0; //maze number--a third dimension
-		for (int i = 0; i < map.length; i++) {
-			for (int j = 0; j < map[0].length; j++) {
-				if (map[i][j].equals("W")) {
-					ArrayList<Integer> oneStartCoor = new ArrayList<Integer>();
-					oneStartCoor.add(i-k*rows); //x coor
-					oneStartCoor.add(j); //y coor
-					oneStartCoor.add(k); //maze coor
-					k++; //update maze number to the next maze
-					startCoor.add(oneStartCoor);
-				}
-			}
-		}
 		//create ArrayList of offsets for North, South, East, West
 		ArrayList<Integer> offsets = new ArrayList<Integer>();
 		//(0, 1)
@@ -425,22 +380,43 @@ public class p1 {
 		offsets.add(0);
 		offsets.add(-1);
 		
-		//STACKING
+		//create an ArrayList to save coordinates of the open walkways
+		ArrayList<ArrayList<Integer>> openWalkway = new ArrayList<ArrayList<Integer>>();
+		
+		//find all start locations and add coordinates to ArrayList
+		int k = 0; //maze number
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[0].length; j++) {
+				if (map[i][j].equals("W")) {
+					ArrayList<Integer> oneStartCoor = new ArrayList<Integer>();
+					oneStartCoor.add(i-k*rows); //x coor
+					oneStartCoor.add(j); //y coor
+					oneStartCoor.add(k); //maze coor
+					k++; //update maze number to the next maze
+					startCoor.add(oneStartCoor);
+				}
+			}
+		}
+		
+		//QUEUEING
 		
 		//add the starting ArrayList to the queue
-		optimalStack.push(startCoor.get(0));
-		
-		while (coinCoor.size() != 0 || optimalStack.size() > 0) {
-			//1. pop
-			ArrayList<Integer> popped = optimalStack.pop();
-			System.out.println("Popped: " + popped);
-			int xCoor = popped.get(0);
-			int yCoor = popped.get(1);
-			int zCoor = popped.get(2); //maze num
+		optimalQueue.add(startCoor.get(0));
 			
-			//2. push all walkable tiles "." North, South, East, and West of the location just popped
+		//while the coin coordinates have not been found...
+		while(coinCoor.size() == 0 || optimalQueue.size() > 0) {
+			//1. dequeue
+			ArrayList<Integer> dequeued = optimalQueue.remove();
+			System.out.println("Dequeued: " + dequeued);
+			int xCoor = dequeued.get(0);
+			int yCoor = dequeued.get(1);
+			int zCoor = dequeued.get(2); //maze num
+				
+			//2. enqueue all walkable tiles "." North, South, East, and West of the location just dequeued
+			//ensure that xCoor and yCoor are not outside the map and that the coordinate has not been visited before
+				
 			//loop through offsets
-			for (int i = 0; i < 8; i+= 2) {
+			for (int i = 0; i < 8; i+=2) {
 				int xOffset = xCoor + offsets.get(i);
 				int yOffset = yCoor + offsets.get(i+1);
 				//check if coordinate is in bounds
@@ -456,11 +432,11 @@ public class p1 {
 						coinCoor.add(yOffset);
 						coinCoor.add(zCoor);
 						System.out.println("Coin Coor: " + coinCoor);
-						visited.put(currCoor, popped);
+						visited.put(currCoor, dequeued);
 						break;
 					}
 					//check for walkable space ("." or "||")
-					if (map[xOffset+zCoor*rows][yOffset].equals(".") || map[xOffset][yOffset].equals("|")) {
+					if (map[xOffset+zCoor*rows][yOffset].equals(".") || map[xOffset+zCoor*rows][yOffset].equals("|")) {
 						//check if this coor has been stacked before
 						if (visited.containsKey(currCoor)) {
 							//check the previous path length to get the the current Coor and compare it to the present path length
@@ -477,8 +453,8 @@ public class p1 {
 								}
 							}
 							int lengthCurr = 1;
-							ArrayList<Integer> currTraceback = visited.get(popped); //find the parent of the current in visited and traceback
-							System.out.println("Current parent: " + popped);
+							ArrayList<Integer> currTraceback = visited.get(dequeued); //find the parent of the current in visited and traceback
+							System.out.println("Current parent: " + dequeued);
 							while (currTraceback != startCoor.get(0)) {
 								lengthCurr+=1;
 								System.out.println(currTraceback);
@@ -491,36 +467,39 @@ public class p1 {
 							if (lengthCurr < lengthPrevious) {
 								//replace the previous parent of the current Coordinate with the present parent
 								System.out.println("Replaced");
-								visited.replace(currCoor, popped);
+								visited.replace(currCoor, dequeued);
 							}
 						}
 						else {
 							//current coor is valid--push it
-							optimalStack.push(currCoor);
+							optimalQueue.add(currCoor);
 							//if currCoor is an open walkway, push the starting coor of the next maze into the stack 
 							if (map[xOffset+zCoor*rows][yOffset].equals("|")) {
-								optimalStack.push(startCoor.get(zCoor+1));
+								optimalQueue.add(startCoor.get(zCoor+1));
 								visited.put(startCoor.get(zCoor+1), currCoor);
 							}
 							//add the current coordinates into visited as the child of the coordinates that it branched off from (the parent)--this is for tracing back later
-							visited.put(currCoor, popped);
+							visited.put(currCoor, dequeued);
 						}
 					}
 				}
-				
+			}
+			if (optimalQueue.size() == 0) {
+				break;
 			}
 			if (coinCoor.size() != 0) {
 				break;
 			}
-			if (optimalStack.size() == 0) {
-				break;
-			}
-			System.out.println("Stack: " + optimalStack);
+			System.out.println("Queue: " + optimalQueue);
+				
 		}
 		System.out.println("Visited: " + visited);
 		
 		//TRACEBACK
-				
+		traceback(startCoor, coinCoor, visited);
+	}
+	
+	public static void traceback(ArrayList<ArrayList<Integer>> startCoor, ArrayList<Integer> coinCoor, HashMap<ArrayList<Integer>, ArrayList<Integer>> visited) {
 		//find the coor that is the parent to the coor of the coin 
 		ArrayList<Integer> currTraceback = visited.get(coinCoor);
 		//while the code hasn't traced back to the starting pos...
@@ -538,8 +517,7 @@ public class p1 {
 			}
 		}
 		System.out.println("Result: " + result);
-		
-		
+		System.out.println(result.size());
 	}
 	
 }
