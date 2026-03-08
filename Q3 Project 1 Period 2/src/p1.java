@@ -11,31 +11,105 @@ import java.util.HashMap;
 
 public class p1 {
 	
+	//info about the map
 	private static String[][] map;
 	private static int rows;
 	private static int cols;
 	private static int numMazes;
-	private static ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>(); //ArrayList with the coordinates of the final path
 	
-	public static void main(String[] args) {
-		try {
-			readMapBasedFile("easyMap2");
-			stackBased();
-		} catch(IncompleteMapException e) {
-			System.out.println(e.getMessage());
-		} catch(IllegalMapCharacterException e) {
-			System.out.println(e.getMessage());
-		} catch(IncorrectMapFormatException e) {
-			System.out.println(e.getMessage());
+	//ArrayList with the coordinates of the final path
+	private static ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+	
+	//booleans for each switch
+	private static boolean stack = false;
+	private static boolean queue = false;
+	private static boolean opt = false;
+	private static boolean time = false;
+	private static boolean inCoordinate = false;
+	private static boolean outCoordinate = false;
+	private static boolean help = false;
+	
+	public static void main(String[] args) throws IllegalCommandLineInputsException {
+		int methodCount = 0;
+		//check for switches in command line
+		for (String arg : args) {
+			switch (arg) {
+				case "--Stack":
+					stack = true;
+					methodCount += 1;
+					break;
+				case "--Queue":
+					queue = true;
+					methodCount += 1;
+					break;
+				case "--Opt":
+					opt = true;
+					methodCount += 1;
+					break;
+				case "--Time":
+					time = true;
+					break;
+				case "--Incoordinate":
+					inCoordinate = true;
+					break;
+				case "--Outcoordinate":
+					outCoordinate = true;
+					break;
+				case "--Help":
+					help = true;
+					break;
+			}
 		}
-//		try {
-//			readCoorBasedFile("easyMap1c");
-//		} catch(IllegalMapCharacterException e) {
-//			System.out.println(e.getMessage());
-//		} catch(IncorrectMapFormatException e) {
-//			System.out.println(e.getMessage());
-//		}
-
+		//ensure only one stack, queue, or opt is switched on
+		if (methodCount != 1) {
+			throw new IllegalCommandLineInputsException("Command line does not input exactly one --Stack, --Queue, or --Opt");
+		}
+		//if help switch is one...
+		if (help) {
+			
+		}
+		//if the input is in coordinate form...
+		if (inCoordinate) {
+			try {
+				readCoorBasedFile("easyMap1c");
+			} catch(IllegalMapCharacterException e) {
+				System.out.println(e.getMessage());
+			} catch(IncorrectMapFormatException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+		//if the input is in text-map based form...
+		else {
+			try {
+				readMapBasedFile("easyMap2");
+			} catch(IncompleteMapException e) {
+				//System.out.println(e.getMessage());
+				e.printStackTrace();
+			} catch(IllegalMapCharacterException e) {
+				e.printStackTrace();
+			} catch(IncorrectMapFormatException e) {
+				e.printStackTrace();
+			}
+		}
+		//execute approaches
+		if (stack) {
+			stackBased();
+		}
+		else if (queue) {
+			queueBased();
+		}
+		else if (opt) {
+			optimal();
+		}
+		//if the output is in coordinate form...
+		if (outCoordinate) {
+			
+		}
+		//if the output is in text-map based form...
+		else {
+			mapOutput();
+		}
+		
 	}
 	
 	public static void readMapBasedFile(String fileName) throws IncompleteMapException, IllegalMapCharacterException, IncorrectMapFormatException {
@@ -51,7 +125,7 @@ public class p1 {
 			numMazes = Integer.parseInt(myScanner.next()); //assign # of mazes to third number in file
 			//check if the first 3 digits negative or 0--if they are, throw exception
 			if (rows <= 0 || cols <= 0 || numMazes <= 0) {
-				throw new IncorrectMapFormatException("IncorrectMapFormatException - first 3 digits not positive/nonzero");
+				throw new IncorrectMapFormatException("First 3 digits are not positive/nonzero");
 			}
 			//create 2D array to put elements of the map
 			map = new String[rows*numMazes][cols];
@@ -61,13 +135,13 @@ public class p1 {
 				String oneRow = myScanner.next();
 				//check for incomplete map (not enough characters)
 				if (oneRow.length() < cols) {
-					throw new IncompleteMapException("IncompleteMapException - missing characters/rows in map");
+					throw new IncompleteMapException("Missing characters/rows exist in map");
 				}
 				for (int j = 0; j < map[0].length; j++) {
 					//check for illegal characters
 					String element = oneRow.substring(j, j+1);
 					if (!element.equals(".") && !element.equals("W") && !element.equals("$") && !element.equals("|") && !element.equals("@")) {
-						throw new IllegalMapCharacterException("IllegalMapCharacterException - illegal character in map");
+						throw new IllegalMapCharacterException("Illegal character found in map");
 					}					
 					else {
 						map[i][j] = element;
@@ -96,7 +170,7 @@ public class p1 {
 			numMazes = Integer.parseInt(myScanner.next()); //assign # of mazes to third number in file
 			//check if the first 3 digits negative or 0--if they are, throw exception
 			if (rows <= 0 || cols <= 0 || numMazes <= 0) {
-				throw new IncorrectMapFormatException("IncorrectMapFormatException - first 3 digits not positive/nonzero");
+				throw new IncorrectMapFormatException("First 3 digits are not positive/nonzero");
 			}
 			//create 2D array to put elements of the map
 			map = new String[rows*numMazes][cols];
@@ -107,7 +181,7 @@ public class p1 {
 				String element = myScanner.next();
 				//check if element is an illegal character--if it is, throw exception
 				if (!element.equals(".") && !element.equals("W") && !element.equals("$") && !element.equals("|") && !element.equals("@")) {
-					throw new IllegalMapCharacterException("IllegalMapCharacterException - illegal character in map");
+					throw new IllegalMapCharacterException("Illegal character found in map");
 				}
 				//get the row, col, and maze # for the element
 				int row = Integer.parseInt(myScanner.next()); 
@@ -115,7 +189,7 @@ public class p1 {
 				int mazeNum = Integer.parseInt(myScanner.next()); 
 				//check if coordinates fit inside maze
 				if (row > rows-1 || row < 0 || col > cols-1 || col < 0 || mazeNum > numMazes-1 || mazeNum < 0) {
-					throw new IncorrectMapFormatException("IncorrectMapFormatException - coordinates do not fit inside map");
+					throw new IncorrectMapFormatException("Coordinates do not fit inside map");
 				}
 				map[row+mazeNum*rows][col] = element; 
 			}
@@ -498,7 +572,6 @@ public class p1 {
 		//TRACEBACK
 		traceback(startCoor, coinCoor, visited);
 	}
-	
 	public static void traceback(ArrayList<ArrayList<Integer>> startCoor, ArrayList<Integer> coinCoor, HashMap<ArrayList<Integer>, ArrayList<Integer>> visited) {
 		//find the coor that is the parent to the coor of the coin 
 		ArrayList<Integer> currTraceback = visited.get(coinCoor);
@@ -519,5 +592,25 @@ public class p1 {
 		System.out.println("Result: " + result);
 		System.out.println(result.size());
 	}
+	public static void mapOutput() {
+		String[][] output = new String[map.length][map[0].length];
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[0].length; j++) {
+				output[i][j] = map[i][j];
+			}
+		}
+		for (ArrayList<Integer> coor : result) {
+			int xCoor = coor.get(0);
+			int yCoor = coor.get(1);
+			int zCoor = coor.get(2);
+			//only add "+" for periods
+			if (output[xCoor+zCoor*rows][yCoor].equals(".")) {
+				System.out.println("Entered");
+				output[xCoor+zCoor*rows][yCoor] = "+";
+			}
+		}
+		System.out.println("Output: " + Arrays.deepToString(output));
+	}
+	
 	
 }
