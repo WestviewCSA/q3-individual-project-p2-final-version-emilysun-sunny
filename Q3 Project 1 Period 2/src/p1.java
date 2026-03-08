@@ -32,6 +32,10 @@ public class p1 {
 	//check if map is solvable
 	private static boolean storeClosed = false;
 	
+	//time
+	private static long startTime;
+	private static long endTime;
+	
 	public static void main(String[] args) throws IllegalCommandLineInputsException {
 		int methodCount = 0;
 		//check for switches in command line
@@ -84,9 +88,9 @@ public class p1 {
 			try {
 				readCoorBasedFile("mediumMap1c");
 			} catch(IllegalMapCharacterException e) {
-				System.out.println(e.getMessage());
+				e.printStackTrace();
 			} catch(IncorrectMapFormatException e) {
-				System.out.println(e.getMessage());
+				e.printStackTrace();
 			}
 		}
 		//if the input is in text-map based form...
@@ -103,13 +107,19 @@ public class p1 {
 		}
 		//execute approaches
 		if (stack) {
+			startTime = System.nanoTime();
 			stackBased();
+			endTime = System.nanoTime();
 		}
 		else if (queue) {
+			startTime = System.nanoTime();
 			queueBased();
+			endTime = System.nanoTime();
 		}
 		else if (opt) {
+			startTime = System.nanoTime();
 			optimal();
+			endTime = System.nanoTime();
 		}
 		//if the output is in coordinate form...
 		if (outCoordinate) {
@@ -118,6 +128,10 @@ public class p1 {
 		//if the output is in text-map based form...
 		else {
 			mapOutput();
+		}
+		if (time) {
+			double runTimeSeconds = (endTime - startTime) / 1_000_000_000.0;
+			System.out.println("Total Runtime: " + runTimeSeconds + " seconds");
 		}
 		
 	}
