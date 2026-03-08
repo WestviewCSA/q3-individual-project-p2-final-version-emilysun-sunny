@@ -29,6 +29,9 @@ public class p1 {
 	private static boolean outCoordinate = false;
 	private static boolean help = false;
 	
+	//check if map is solvable
+	private static boolean storeClosed = false;
+	
 	public static void main(String[] args) throws IllegalCommandLineInputsException {
 		int methodCount = 0;
 		//check for switches in command line
@@ -60,18 +63,26 @@ public class p1 {
 					break;
 			}
 		}
+		//if help switch is one...
+		if (help) {
+			System.out.println("This program is intended to find a path from Wolverine's starting position W to the legendary Diamond Wolverine Coin $ using a specified approach. ");
+			System.out.println("Command Line Switches:");
+			System.out.println("--Stack: use stack-based approach");
+			System.out.println("--Queue: use queue-based approach");
+			System.out.println("--Opt: find shortest path");
+			System.out.println("--Time: print runtime");
+			System.out.println("--Incoordinate: coordinate input format (if this switch is not set, text-map based input format)");
+			System.out.println("--Outcoordinate: coordinate output format (if this switch is not set, text-map based output format)");
+			System.exit(0);
+		}
 		//ensure only one stack, queue, or opt is switched on
 		if (methodCount != 1) {
 			throw new IllegalCommandLineInputsException("Command line does not input exactly one --Stack, --Queue, or --Opt");
 		}
-		//if help switch is one...
-		if (help) {
-			
-		}
 		//if the input is in coordinate form...
 		if (inCoordinate) {
 			try {
-				readCoorBasedFile("easyMap1c");
+				readCoorBasedFile("mediumMap1c");
 			} catch(IllegalMapCharacterException e) {
 				System.out.println(e.getMessage());
 			} catch(IncorrectMapFormatException e) {
@@ -81,9 +92,8 @@ public class p1 {
 		//if the input is in text-map based form...
 		else {
 			try {
-				readMapBasedFile("easyMap2");
+				readMapBasedFile("hardMap2");
 			} catch(IncompleteMapException e) {
-				//System.out.println(e.getMessage());
 				e.printStackTrace();
 			} catch(IllegalMapCharacterException e) {
 				e.printStackTrace();
@@ -103,7 +113,7 @@ public class p1 {
 		}
 		//if the output is in coordinate form...
 		if (outCoordinate) {
-			
+			coorOutput();
 		}
 		//if the output is in text-map based form...
 		else {
@@ -585,6 +595,7 @@ public class p1 {
 			}
 			//if the curr coor does not have a parent, coin is unreachable 
 			else {
+				storeClosed = true;
 				System.out.println("The Wolverine Store is closed.");
 				break;
 			}
@@ -593,23 +604,49 @@ public class p1 {
 		System.out.println(result.size());
 	}
 	public static void mapOutput() {
-		String[][] output = new String[map.length][map[0].length];
-		for (int i = 0; i < map.length; i++) {
-			for (int j = 0; j < map[0].length; j++) {
-				output[i][j] = map[i][j];
+		//ensure wolverine store is not closed
+		if (!storeClosed) {
+			//create array for output
+			String[][] output = new String[map.length][map[0].length];
+			for (int i = 0; i < map.length; i++) {
+				for (int j = 0; j < map[0].length; j++) {
+					output[i][j] = map[i][j];
+				}
+			}
+			//for all the coordinates in result
+			for (ArrayList<Integer> coor : result) {
+				int xCoor = coor.get(0);
+				int yCoor = coor.get(1);
+				int zCoor = coor.get(2);
+				//only add "+" for periods
+				if (output[xCoor+zCoor*rows][yCoor].equals(".")) {
+					output[xCoor+zCoor*rows][yCoor] = "+";
+				}
+			}
+			//print output
+			for (int i = 0; i < output.length; i++) {
+				for (int j = 0; j < output[0].length; j++) {
+					System.out.print(output[i][j]);
+				}
+				System.out.println();
 			}
 		}
-		for (ArrayList<Integer> coor : result) {
-			int xCoor = coor.get(0);
-			int yCoor = coor.get(1);
-			int zCoor = coor.get(2);
-			//only add "+" for periods
-			if (output[xCoor+zCoor*rows][yCoor].equals(".")) {
-				System.out.println("Entered");
-				output[xCoor+zCoor*rows][yCoor] = "+";
+	}
+	public static void coorOutput() {
+		//ensure wolverine store is not closed
+		if (!storeClosed) {
+			//loop through result
+			for (int i = result.size()-1; i >= 0; i--) {
+				ArrayList<Integer> coor = result.get(i);
+				int xCoor = coor.get(0);
+				int yCoor = coor.get(1);
+				int zCoor = coor.get(2);
+				//only add "+" for periods
+				if (map[xCoor+zCoor*rows][yCoor].equals(".")) {
+					System.out.println("+ " + xCoor + " " + yCoor + " " + zCoor);
+				}
 			}
 		}
-		System.out.println("Output: " + Arrays.deepToString(output));
 	}
 	
 	
