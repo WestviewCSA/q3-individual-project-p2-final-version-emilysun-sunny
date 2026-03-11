@@ -67,6 +67,8 @@ public class p1 {
 					break;
 			}
 		}
+		//set last argument to the map file
+		String mapFile = args[args.length-1];
 		//if help switch is one...
 		if (help) {
 			System.out.println("This program is intended to find a path from Wolverine's starting position W to the legendary Diamond Wolverine Coin $ using a specified approach. ");
@@ -86,7 +88,7 @@ public class p1 {
 		//if the input is in coordinate form...
 		if (inCoordinate) {
 			try {
-				readCoorBasedFile("mediumMap1c");
+				readCoorBasedFile(mapFile);
 			} catch(IllegalMapCharacterException e) {
 				e.printStackTrace();
 			} catch(IncorrectMapFormatException e) {
@@ -96,7 +98,7 @@ public class p1 {
 		//if the input is in text-map based form...
 		else {
 			try {
-				readMapBasedFile("hardMap2");
+				readMapBasedFile(mapFile);
 			} catch(IncompleteMapException e) {
 				e.printStackTrace();
 			} catch(IllegalMapCharacterException e) {
