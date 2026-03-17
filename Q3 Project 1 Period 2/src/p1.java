@@ -79,6 +79,7 @@ public class p1 {
 			System.out.println("--Time: print runtime");
 			System.out.println("--Incoordinate: coordinate input format (if this switch is not set, text-map based input format)");
 			System.out.println("--Outcoordinate: coordinate output format (if this switch is not set, text-map based output format)");
+			System.out.println("IMPORTANT: You must choose one and only one approach out of Stack, Queue, or Opt. ");
 			System.exit(0);
 		}
 		//ensure only one stack, queue, or opt is switched on
@@ -131,6 +132,7 @@ public class p1 {
 		else {
 			mapOutput();
 		}
+		//time switch
 		if (time) {
 			double runTimeSeconds = (endTime - startTime) / 1_000_000_000.0;
 			System.out.println("Total Runtime: " + runTimeSeconds + " seconds");
