@@ -20,15 +20,6 @@ public class p1 {
 	//ArrayList with the coordinates of the final path
 	private static ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
 	
-	//booleans for each switch
-	private static boolean stack = false;
-	private static boolean queue = false;
-	private static boolean opt = false;
-	private static boolean time = false;
-	private static boolean inCoordinate = false;
-	private static boolean outCoordinate = false;
-	private static boolean help = false;
-	
 	//check if map is solvable
 	private static boolean storeClosed = false;
 	
@@ -36,7 +27,16 @@ public class p1 {
 	private static long startTime;
 	private static long endTime;
 	
-	public static void main(String[] args) throws IllegalCommandLineInputsException {
+	public static void main(String[] args){
+		//booleans for switches
+		boolean stack = false;
+		boolean queue = false;
+		boolean opt = false;
+		boolean time = false;
+		boolean inCoordinate = false;
+		boolean outCoordinate = false;
+		boolean help = false;
+		
 		int methodCount = 0;
 		//check for switches in command line
 		for (String arg : args) {
@@ -84,7 +84,8 @@ public class p1 {
 		}
 		//ensure only one stack, queue, or opt is switched on
 		if (methodCount != 1) {
-			throw new IllegalCommandLineInputsException("Command line does not input exactly one --Stack, --Queue, or --Opt");
+			System.out.println("Command line does not input exactly one --Stack, --Queue, or --Opt");
+			System.exit(-1);
 		}
 		//if the input is in coordinate form...
 		if (inCoordinate) {
@@ -122,10 +123,27 @@ public class p1 {
 		//if the output is in coordinate form...
 		if (outCoordinate) {
 			coorOutput();
+			//reset all instance variables
+			rows = 0;
+			cols = 0;
+			numMazes = 0;
+			map = new String[rows][cols];
+			result = new ArrayList<ArrayList<Integer>>();
+			storeClosed = false;
+			startTime = 0;
+			endTime = 0;
 		}
 		//if the output is in text-map based form...
 		else {
 			mapOutput();
+			rows = 0; 
+			cols = 0;
+			numMazes = 0;
+			map = new String[rows][cols];
+			result = new ArrayList<ArrayList<Integer>>();
+			storeClosed = false;
+			startTime = 0;
+			endTime = 0;
 		}
 		//time switch
 		if (time) {
